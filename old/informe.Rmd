@@ -1,0 +1,141 @@
+---
+title: "Redes en el cerebro durante el sueño"
+subtitle: "Trabajo práctico"
+author:
+- Nicolás Abuchar
+- Franco Betteo 
+- Milena Dotta
+- Francisco Valentini
+date: "Diciembre de 2018"
+lang: es
+output: 
+  bookdown::pdf_document2:
+    toc: false
+    fig_caption: true
+    fig_width: 4
+    fig_height: 4
+geometry: "left=1cm,right=1cm,top=1cm,bottom=2cm"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=F, warning=F, message=F,
+                      fig.align='center',fig.show='hold',fig.pos='H')
+# load libraries y functions
+source("functions.R")
+source("libraries.R")
+```
+
+# Tarea 1 
+
+Se obtiene el promedio de las matrices de correlación de cada sujeto para cada estadío del sueño. Estas son las matrices de correlación promedio en cada estadío del sueño.
+
+```{r estructura-promedio, out.width='40%', fig.show='hold', fig.cap="Estructura del promedio de las redes pesadas"}
+knitr::include_graphics(c(
+  "output/plots/corrplot_W.png",
+  "output/plots/corrplot_N1.png",
+  "output/plots/corrplot_N2.png",
+  "output/plots/corrplot_N3.png"
+))
+```
+
+Se transforman las redes promedio en redes binarias usando distintas densidades. Sobre cada una de estas redes se calculan las medidas resumen para cada densidad (sacar las que no tengan sentido).
+
+```{r medidas-resumen, out.width='40%', fig.show='hold', fig.cap="Medidas resumen de las redes promedio no ponderadas"}
+knitr::include_graphics(c(
+  "output/plots/resumen_autovec.png",
+  "output/plots/resumen_cercania.png",
+  "output/plots/resumen_clustering.png",
+  "output/plots/resumen_diametro.png",
+  "output/plots/resumen_grado.png",
+  "output/plots/resumen_intermed.png"
+))
+```
+
+Se visualiza la red promedio en cada etapa del sueño para una densidad de XXX, coloreado según las regiones del cerebro. Se usa un layout 'layout_nicely' (se puede usar el layout del corte transversal del cerebro, ver la funcion del script - probar con manipulate). 
+
+```{r red-brain, out.width='100%', fig.show='hold', fig.cap="Visualización de la red promedio no ponderada (densidad=XXX)"}
+knitr::include_graphics(c(
+  "output/plots/redes_nobrain_0075.png"
+))
+```
+
+# Tarea 2
+
+Con las redes promedio binarias se identifican comunidades para cada valor de densidad y cada etapa del sueño. En cada caso se computa el coeficiente de modularidad y el número de comunidades. 
+
+```{r comunidades, out.width='40%', fig.show='hold', fig.cap="Detección de comunidades (Louvain)"}
+knitr::include_graphics(c(
+  "output/plots/resumen_modularidad.png",
+  "output/plots/resumen_nclusters.png"
+))
+```
+
+Se generan para cada caso grafos random que preservan las distribuciones de grado, y se identifican comunidades nuevamente. Se calculan los mismos indicadores.
+
+```{r comunidades-random, out.width='40%', fig.show='hold', fig.cap="Detección de comunidades en una red aleatoria (Louvain)"}
+knitr::include_graphics(c(
+  "output/plots/resumen_modularidad_g_rand_eqd.png",
+  "output/plots/resumen_nclusters_g_rand_eqd.png"
+))
+```
+
+# Tarea 3
+
+(Esto incluye opcional 2)
+
+La identifación de comunidades se hace a nivel individuo, en base a las redes binarias de cada uno. En los gráficos está la media y el ¿desvío de la media? (revisar, ver los plots del paper, hace lo mismo que esto). Para ver si hay diferencias significativas entre cada etapa del sueño y el estado de conciencia (para cada densidad) se hace un test de ANOVA piola (ver bien la descripcion del paper, esto intenta imitarlo).
+
+Para controlar por la comparación de 4 grupos en simultáneo, se realiza para cada densidad un test post-hoc de Tukey, del cual se obtienen los p-valores. Debido a la comparación simultánea de los ¿26? contrastes (uno por cada densidad) para cada etapa del sueño, los p-valores se ajustan siguiendo el método Benjamini-Hochberg de la familia de control de FDR. Se ponen asteriscos en las figuras allí donde hay resultados significativos.
+
+Ver si ajustar escala de plots.
+
+```{r comp-modularidad, out.width='100%', fig.show='hold', fig.cap="Comparación de la modularidad y el número de clusters entre estadíos"}
+knitr::include_graphics(c(
+  "output/plots/comp_modularidad.png",
+  "output/plots/comp_nclusters.png"
+))
+```
+
+# Tarea 4
+
+Para cada valor de densidad, se calcula el índice de Rand ajustado para comparar las membresías de cada nodo. Se compara cada etapa del sueño con el estado de conciencia. Se usan los grafos promedio binarios.
+
+El valor obtenido para cada densidad se compara con los que se obtienen de realizar 1000 permutaciones de las membresías. El p-valor es la proporción de estas permutaciones con un índice de Rand que supera al valor obtenido originalmente. Se registran resultados significativos (p-valores menores al 5%) con un asterisco (en todos los casos da cero, asi que no tiene sentido ajustar por comp múltiple, estará bien?)
+
+```{r rand, out.width='30%', out.height='100%', fig.show='hold', fig.cap="Similitud de membresías entre estadíos (índice de Rand ajustado)"}
+knitr::include_graphics(c(
+  "output/plots/resumen_randN1.png",
+  "output/plots/resumen_randN2.png",
+  "output/plots/resumen_randN3.png"
+))
+```
+
+# Tarea 5
+
+Se usan las redes binarias por individuo para asignar roles a los nodos (ver la consigna y el paper para describir los roles). Para cada valor de densidad se compara la media de cantidad de nodos de cada rol en cada estadío del sueño contra el estadío 'despierto'. También se registra el ¿desvío? (chequear en el paper). Se hace una comparación estadística análoga a la de la tarea 3 (hay re pocos resultados signif, estará bien?). 
+
+Ver si ajustar las escalas de los plots.
+
+```{r comp-hubs, out.width='100%', fig.show='hold', fig.cap="Comparación de la cantidad de nodos según rol entre estadíos"}
+knitr::include_graphics(c(
+  "output/plots/comp_hubs.png",
+  "output/plots/comp_provincialhubs.png",
+  "output/plots/comp_provincialnodes.png",
+  "output/plots/comp_connectornodes.png"
+))
+```
+
+Se hace una visualización de la red promedio binaria para cada estadío, fijando una densidad de XXX. Se discriminan los nodos según su rol. (se puede cambiar el layout como en tarea 1)
+
+En la consigna tambien dice colorear segun "membresia". si son las membresias de la tarea 2, el problema que hay es que la paleta de colores no se banca mas de 10. Hay q cambiar la paleta para hacerlo, si es que hay que hacerlo.
+
+```{r red-nobrain-roles, out.width='100%', fig.show='hold', fig.cap="Visualización de roles en la red promedio no ponderada (densidad=XXX)"}
+knitr::include_graphics(c(
+  "output/plots/redes_roles_nobrain_0075.png"
+))
+```
+
+Tarea opcional 5: los colores por region ya estan en la tarea 1. Se puede hacer colores por hemisferio usando la super funcion del script de plot-prom-grafos, solo hay qu guardar el plot, es bastante intuitivo. Se puede probar con manipulate. Entiendo que "agrupaientos funcionales" son los de los roles.
+
+
+Cuando esté todo ok ponerse a describir los resultados segun loq piden las consignas. Ir mirando paper.

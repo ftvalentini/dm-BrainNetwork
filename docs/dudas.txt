@@ -1,0 +1,19 @@
+- En el paper las matrices promedio se generan creando una matriz binaria para cada individuo y promediando estas matrices binarias (es distinto a lo que hicimos en clase: partimos del promedio de las individuales y luego binarizamos -- el promedio que calculamos es igual al que usamos en clase a 3 decimales -no coinciden 62 celdas pero a un decimal-)
+
+- En algun momento hay que usar las redes ponderadas? (como en el paper)
+
+- El paper hace un anova para cada par N*-W? O uno para todos juntos?
+
+- "Diferencias en la membres?a" con las redes promedio o individuales?
+
+- Las permutaciones se tienen que hacer a nivel sujeto? (porque dice rand index "Promedio", o sea, promedio por delta-estado para los 18 sujetos; pero si las permutaciones se hacen a nivel delta-estado, qu? numero de clusters se usa? se puede usar la media pero hay mucho desvio entre sujetos)
+
+- nota: segun wikipedia Adjusted Rand index puede ser negativo
+
+- permutar en lugar de randomizar (el tutorial no permuta, cambia la frecuencia de cada modulo)
+
+- paper dice que permuta ambos grupos 
+
+- NaN (creo que por division por cero) en participation coefficient: qu? valor se usa?
+
+- Graficamos las comunidades y roles de la red promedio (no se puede la de cada individuo...)

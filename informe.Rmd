@@ -1,0 +1,194 @@
+---
+title: "Redes en el cerebro durante el sueño"
+subtitle: Trabajo práctico
+author:
+- Nicolás Abuchar
+- Franco Betteo
+- Milena Dotta
+- Francisco Valentini
+date: "Diciembre de 2018"
+output:
+  bookdown::pdf_document2:
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 4
+    toc: no
+lang: es
+geometry: left=1cm,right=1cm,top=1cm,bottom=2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=F, warning=F, message=F,
+                      fig.align='center',fig.show='hold',fig.pos='H')
+# load libraries y functions
+source("functions.R")
+source("libraries.R")
+```
+
+Las tareas de este informe se hicieron con el lenguaje R, haciendo uso en particular de las librerías *tidyverse* y *igraph*. Además de las tareas obligatorias, se realizaron las tareas opcionales 2 y 5.
+
+# Tarea 1: Visualización
+
+En primer lugar se calculó el promedio de las matrices de correlación individuales para cada estadío del sueño. En la figura \@ref(fig:estructura-promedio) se presentan las matrices de correlación promedio para cada estadío. Se observa un incremento del peso promedio de las conexiones en la etapa N1 del sueño con respecto al estadío de conciencia, seguido de caídas en las etapas N2 y N3; en esta última etapa los pesos promedio se encuentran en su nivel mínimo.
+
+```{r estructura-promedio, out.width='40%', fig.show='hold', fig.cap="Estructura del promedio de las redes pesadas"}
+knitr::include_graphics(c(
+  "output/plots/corrplot_W.png",
+  "output/plots/corrplot_N1.png",
+  "output/plots/corrplot_N2.png",
+  "output/plots/corrplot_N3.png"
+))
+```
+
+En segundo lugar, se transformaron las redes promedio en redes binarias usando fijando 26 valores distintos de densidad en el rango 0.025-0.15. En la figura \@ref(fig:medidas-resumen) se presentan distintas medidas resumen sobre cada una de estas redes para cada valor de densidad. 
+
+```{r medidas-resumen, out.width='40%', fig.show='hold', fig.cap="Medidas resumen de las redes promedio no ponderadas"}
+knitr::include_graphics(c(
+  "output/plots/resumen_autovec.png",
+  "output/plots/resumen_cercania.png",
+  "output/plots/resumen_clustering.png",
+  "output/plots/resumen_diametro.png",
+  "output/plots/resumen_intermed.png",
+  "output/plots/resumen_grado.png"
+))
+```
+
+*Cercanía promedio:* al incrementar la densidad se observa cómo todos los estadíos van aumentando en su nivel de cercanía promedio: N2 en primer lugar y luego el resto. Alrededor del valor de densidad 0.10, N1 y N2 se "despegan" de N3 y de W, llegando a valores cercanos a 0.0025 mientras que N3 y W parecen parecen estabilizarse en 0.0010 y 0.0005, respectivamente. 
+
+*Diámetro:* puede observarse cómo para valores bajos de densidad el díametro alcanza los mayores niveles (con alguna variación inicial) y cómo a medida que se incrementa la densidad, el díametro se reduce constantemente. Este resultado es lógico, ya que se incoporan conexiones que ayudan a conectar los nodos alejados. En esta métrica no se distingue ningún estadío con predominancia. 
+
+*Coeficiente de clustering promedio:* este coeficiente refleja la probabilidad de que dos nodos adyacentes estén a su vez conectados por un tercero. Presenta un comportamiento que se repite en forma muy similar para todos los estadíos a lo largo de las densidades. En un primer momento el coeficiente cae (en mayor o menor medida) para todos los estadíos hasta valores de densidad cercanos a 0.08  y luego crece sostenidamente. Para los valores más altos de densidad visualizados, N1 presenta, en promedio, mayores coeficientes de clustering (cercanos a 0.5) seguido por W, luego N2 bastante cercano y en cuarto lugar más rezagado N3.
+
+*Grado medio:* el cálculo de esta medida es trivial ya que es esperable que a medida que se incrementa la densidad de la red (la cantidad de conexiones) la suma de los grados crezca linealmente y en la misma medida para todos las etapas del sueño.
+
+En la figura \@ref(fig:red-nobrain) se visualiza la red promedio en cada etapa del sueño para una densidad de 0.075, coloreando los nodos según la pertenencia a las regiones del cerebro. Las conexiones entre nodos de una misma region reciben el color corresponediente a la región, mientras que en gris se representan los ejes entre regiones. La disposición de los nodos en el plano surge de la aplicación del algoritmo Fruchterman-Reingold. En la figura \@ref(fig:red-brain) del Anexo se presenta una disposición alternativa según la ubicación de las regiones en el corte transversal del cerebro, que a nuestro entender no supera a esta disposición en su capacidad de interpretar a la red.
+
+```{r red-nobrain, out.width='100%', fig.show='hold', fig.cap="Visualización de la red promedio no ponderada (densidad=0.075)"}
+knitr::include_graphics(c(
+  "output/plots/redes_nobrain_0075.png"
+))
+```
+
+# Tarea 2: Comunidades y coeficiente de modularidad
+
+Utilizando las redes promedio binarias se identificaron comunidades para cada valor de densidad y cada etapa del sueño, usando el algoritmo de Louvain. Para cada caso se computó el coeficiente de modularidad y el número de comunidades, lo cual se observa en la figura \@ref(fig:comunidades).
+
+```{r comunidades, out.width='40%', fig.show='hold', fig.cap="Detección de comunidades (Louvain)"}
+knitr::include_graphics(c(
+  "output/plots/resumen_modularidad.png",
+  "output/plots/resumen_nclusters.png"
+))
+```
+
+Para cada valor de densidad y cada etapa del sueño se generaron grafos al azar que preservan las distribuciones de grado, y se identificaron comunidades nuevamente. Se calcularon y graficaron los mismos indicadores en la figura \@ref(fig:comunidades-random).
+
+```{r comunidades-random, out.width='40%', fig.show='hold', fig.cap="Detección de comunidades en una red aleatoria (Louvain)"}
+knitr::include_graphics(c(
+  "output/plots/resumen_modularidad_g_rand_eqd.png",
+  "output/plots/resumen_nclusters_g_rand_eqd.png"
+))
+```
+
+Al comparar las métricas graficadas entre las redes en las distintas etapas del sueño y estado despierto provenientes del estudio frente a redes random que mantienen el mismo grado para los nodos vemos dos fenómenos destacables. 
+
+1) La *cantidad de comunidades* encontradas es superior en el estudio para los niveles de densidad más bajos en todos los estadíos pero al incrementar la densidad vemos que las comunidades decrecen a un ritmo mayor que en las redes random y por lo tanto convergen rápidamente. 
+A partir, aproximadamente, de la densidad de 0.08 todos los estadíos, tanto en el estudio como en la red random, presentan alrededor de 10 comunidades. Es importante remarcar que a pesar de ver una mayor cantidad de comunidades en los niveles más bajos de densidad para el estudio, la relación entre estadíos se mantiene un comportamiento similar a lo largo de las densidades en la comparación con las redes random. En ambos casos W presenta más comunidades en todo el espectro de densidades analizado tanto en el estudio como en la simulación de redes random (mientras que N2 la menor cantidad). 
+
+2) Se pudo observar una diferencia un poco más notable al analizar la *modularidad*. Para niveles bajos de densidad el coeficiente de modularidad es mayor para todos los estadíos en el estudio respecto a las redes random, a su vez la relación de coeficientes entre estadíos es muy marcada (se mantiene bastante estable salvo algunas intersecciones) mientras que en las redes random estos se intercalan mucho más y no se distingue un patrón claro. A medida se incrementan los niveles de densidad, en ambos casos, todos los estadíos terminan convergiendo en valores cercanos a 0.4. Lo distintivo es que las redes random se estabilizan más rápido que el estudio, donde los coeficientes de modularidad caen de manera continua y persistente desde sus valores iniciales cercanos a 0.8 hasta llegar a 0.4 sin caídas abruptas.
+
+# Tarea 3: Estadística (incluye tarea opcional 2)
+
+En este caso la identifación de comunidades se hizo a nivel individuo, en base a las redes binarias de cada uno. En los gráficos se registra la media (punto) y el desvío de la media (línea fina) del coeficiente de modularidad y de la cantidad de comunidades. Para ver si hay diferencias significativas entre cada etapa del sueño y el estado de conciencia (para cada densidad) se hace un test de ANOVA mixto, donde el componente random son los individuos y el fijo es la etapa del sueño. 
+ 
+Para controlar por la comparación de 4 grupos en simultáneo, se realiza para cada densidad un test post-hoc de Tukey, del cual se obtienen p-valores. Debido a la comparación simultánea de los 26 contrastes (uno por cada densidad) para cada etapa del sueño, estos p-valores se ajustan siguiendo el método Benjamini-Hochberg para controlar la tasa de falsos descubrimientos. En la figura \@ref(fig:comp-modularidad) se ponen asteriscos en los valores de densidad donde hay resultados significativos (menores al 5%).
+
+```{r comp-modularidad, out.width='100%', fig.show='hold', fig.cap="Comparación de la modularidad y el número de clusters entre estadíos"}
+knitr::include_graphics(c(
+  "output/plots/comp_modularidad.png",
+  "output/plots/comp_nclusters.png"
+))
+```
+
+*Modularidad:* puede observarse que N1 y N2 presentan valores superiores que el estado W (despierto) para todo el espectro de densidades analizado aunque la diferencia parece reducirse poco a poco. Por su parte, N3 y W no presentan diferencias llamativas en cuánto a su modularidad.
+
+*Número de clusters:* las conclusiones detalladas para la modularidad se repiten al analizar el número de clusters. Para esta métrica además se pueden observar las métricas de significatividad indicadas por astericos, que están alineadas con lo descripto visualmente.
+
+Los resultados obtenidos son distintos a los presentados en Tagliazucchi et al (2013). En dicho trabajo, la diferencia en la modularidad entre los estadíos N2 y N3 respecto al W fue significativa en ambos casos, mientras que la diferencia de W con N1 no lo fue. Asimismo, la diferencia en el número de clusters solo fue significativa cuando se comparó N1 con W.
+
+Hipotetizamos que esta diferencia puede deberse a que la cantidad de casos analizados en los trabajos es distinta. En el trabajo de Tagliazucchi se estudiaron 63 sujetos (donde 55 alcanzaron al menos el estadío N1) mientras que en el presente trabajo se analizaron 18 individuos. Asimismo, destacamos que en este ejercicio usamos las redes binarias, mientras que no está claro si Tagliazucchi et al trabajan con redes pesadas o no en este caso.
+
+# Tarea 4: Diferencias en la membresía para los diferentes estadíos
+
+De acuerdo a lo especificado en la consigna, para cada valor de densidad, se calcula el índice de Rand ajustado para comparar las membresías de cada nodo entre cada etapa del sueño con el estado de conciencia. Para el ejercicio se se usaron los grafos promedio binarios.
+
+El valor obtenido para cada densidad se compara con los que se obtienen de realizar 1000 permutaciones de las membresías de uno de los estadíos. El p-valor es la proporción de estas permutaciones con un índice de Rand superior al valor obtenido originalmente. Se registran resultados significativos (p-valores menores al 5%) con un asterisco en la figura \@ref(fig:rand).
+
+```{r rand, out.width='30%', out.height='100%', fig.show='hold', fig.cap="Similitud de membresías entre estadíos (índice de Rand ajustado)"}
+knitr::include_graphics(c(
+  "output/plots/resumen_randN1.png",
+  "output/plots/resumen_randN2.png",
+  "output/plots/resumen_randN3.png"
+))
+```
+
+Las mayores diferencias en las membresías con respecto al estado 'despierto' se registran en los estadíos N1 y N2, donde el índice de Rand promedio para todas las densidades se ubica alrededor de 0.55. En cambio, la similitud entre N3 y W es evidentemente superior, y además creciente con la densidad. Destacamos que en todos los casos los p-valores resultantes del procedimiento de permutaciones son iguales a 0 -- además, la diferencia entre los índices de Rand efectivos y los resultantes de las permutaciones es muy alta.  
+
+# Tarea 5: Rol de nodos y cambios en el rol de los nodos (incluye tarea opcional 5)
+
+Se usan las redes binarias por individuo para asignar roles (Hubs H; Provincial Hubs PH, Provincial Nodes PN; Connector Nodes CN) a los nodos de acuerdo a los criterios propuestos por Tagliazucchi et al (2013) especificados en la consigna.
+
+En la figura \@ref(fig:comp-hubs) se compara la media (junto con el desvío) de cantidad de nodos de cada rol en cada estadío del sueño contra el estadío ‘despierto’, para cada valor de densidad. Se hace una comparación estadística análoga a la de la tarea 3. En este caso se observan muy pocas diferencias significativas.
+
+```{r comp-hubs, out.width='100%', fig.show='hold', fig.cap="Comparación de la cantidad de nodos según rol entre estadíos"}
+knitr::include_graphics(c(
+  "output/plots/comp_hubs.png",
+  "output/plots/comp_provincialhubs.png",
+  "output/plots/comp_provincialnodes.png",
+  "output/plots/comp_connectornodes.png"
+))
+```
+
+*Hubs:* la diferencia entre el estado despierto y las distintas etapas del sueño no resulta significativa en ningún caso. Puede observarse como la cantidad de hubs se incrementa a medida que se incrementa la densidad. El comportamiento resulta más similar entre W y N1 y N2 ya que muchas veces se cruzan sus trazas. El gráfico de W versus N3 presenta la mayor diferencia ya que la traza de N3 se encuentra siempre por encima de la de W.
+
+*Provincial Hubs:* la cantidad de Provincial Hubs decrece con el incremento de la densidad para todos los estadíos del sueño y para el estado despierto. La diferencia resulta únicamente significativa en un punto del gráfico comparativo entre W y N2, siendo la traza de N2 sostenidamente mayor. La traza de W se cruza tanto en la comparación con N1 como en la comparación con N3, aunque N1 se mantiene por encima de W en la mayoría de los puntos y N3 por debajo.
+
+*Provincial Nodes:* la cantidad de Provincial Nodes decrece con el incremento de la densidad para todos los estadíos del sueño y para el estado despierto. Se hallaron diferencias significativas para dos valores de baja densidad del comparativo de W con N1 y en un caso de baja densidad del comparativo de W con N2. En los tres puntos significativos el estadío de sueño presentó un número mayor de PN para ese valor de densidad. En los tres comparativos se observó el mismo comportamiento: el estadío del sueño comienza tomando valores superiores a W para bajas densidades y, a medida que se incrementa la densidad, a partir de 0.08 aproximadamente se invierte el orden y W toma valores más elevados que los estadíos del sueño.
+
+*Connector Nodes:* la cantidad de Connector Nodes crece con el incremento de la densidad para todos los estadíos del sueño y para el estado despierto. No se hallaron diferencias significativas aunque para todos los casos los estadíos de sueño presentaron valores ligeramente más elevados que el estado despierto.
+
+Fijando una densidad de 0.075, en la figura \@ref(fig:red-nobrain-roles) se hace una visualización de la red promedio binaria para cada estadío, discriminando los nodos según su rol. Se usa la misma disposición de los nodos que en la tarea 1. No presentamos una visualización que discrimine según las membresías generadas con el algoritmo de Louvain debido que la alta cantidad de comunidades dificultaba la interpretación del gráfico.
+
+```{r red-nobrain-roles, out.width='100%', fig.show='hold', fig.cap="Visualización de roles en la red promedio no ponderada (densidad=0.075)"}
+knitr::include_graphics(c(
+  "output/plots/redes_roles_nobrain_0075.png"
+))
+```
+
+La relación entre agrupamientos funcionales y anatómicos no es del todo evidente a partir del análisis de las figuras \@ref(fig:red-nobrain) y \@ref(fig:red-nobrain-roles), pero se pudieron extraer los siguientes hallazgos:
+
+- Para todos los estadíos del sueño la región (anatómica) Subcortical corresponde con Provincial Nodes (PN)
+
+- Para todos los estadíos del sueño casi toda la región (anatómica) Cerebelum corresponde con PN, aunque presenta algunos Hubs (H) y Provincial Hubs (PH)
+
+- La región anatómica Insula varía su comportamiento en cada estadío del sueño. Para los estados N1 y N2 se compone únicamente de Central Nodes (CN), en el estadío N3 de H y en el W de PN.
+
+- Para las demás regiones anatómicas no se halló ningún patrón relevante ya que presentan varios tipos distintos de nodos en todos los estadíos y van modificandose sin un patrón definido.
+
+En la figura \@ref(fig:red-nobrain-hemis) se presenta la red según la pertenencia de los nodos a cada hemisferio del cerebro.
+
+```{r red-nobrain-hemis, out.width='100%', fig.show='hold', fig.cap="Visualización de hemisferios en la red promedio no ponderada (densidad=0.075)"}
+knitr::include_graphics(c(
+  "output/plots/redes_hemis_nobrain_0075.png"
+))
+```
+
+A partir de la comparación de las figuras \@ref(fig:red-nobrain) y \@ref(fig:red-nobrain-hemis) se puede observar que en gran medida los roles de los nodos no están determinados por el hemisferio al que pertenecen. En todos los estadíos, al revisar internamente la composición de los distintos roles, vemos que los nodos de ambos hemisferios se intercalan sin poder determinar una mayoría clara lo cual sugiere que hay una interrelación permanente de los hermisferios en términos de los roles definidos por Tagliazucchi et al (2013).
+
+# Anexo
+
+```{r red-brain, out.width='100%', fig.show='hold', fig.cap="Visualización alternativa de la red promedio no ponderada (densidad=0.075)"}
+knitr::include_graphics(c(
+  "output/plots/redes_brain_0075.png"
+))
+```
+
